@@ -14,7 +14,7 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.example.com:7050
+      - orderer.energy.com:7050
   - &Producer
     Name: ProducerMSP
     ID: ProducerMSP
@@ -132,7 +132,7 @@ Application: &ApplicationDefaults
 
 Orderer: &OrdererDefaults
   Addresses:
-    - orderer.example.com:7050
+    - orderer.energy.com:7050
   BatchTimeout: 2s
   BatchSize:
     MaxMessageCount: 10
