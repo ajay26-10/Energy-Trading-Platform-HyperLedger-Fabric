@@ -92,6 +92,21 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050  --ordererTLSHostnameOverride orderer.energy.com --tls --cafile $ORDERER_CA
 sleep 1
 
+echo "—---------------Join Producer peer1 to the channel—-------------"
+
+export CORE_PEER_LOCALMSPID=ProducerMSP 
+export CORE_PEER_ADDRESS=localhost:7297
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/producer.energy.com/users/Admin@producer.energy.com/msp
+
+echo ${FABRIC_CFG_PATH}
+sleep 2
+peer channel join -b ${PWD}/channel-artifacts/${CHANNEL_NAME}.block
+sleep 3
+
+echo "-----channel List----"
+peer channel list
+
 echo "—---------------package chaincode—-------------"
 
 peer lifecycle chaincode package basic.tar.gz --path ${PWD}/../Chaincode/chaincode-javascript/ --lang node --label basic_1.0

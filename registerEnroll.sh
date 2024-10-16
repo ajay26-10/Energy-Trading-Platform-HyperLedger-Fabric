@@ -44,6 +44,11 @@ function createProducer() {
   fabric-ca-client register --caname ca-producer --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/producer/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  echo "Registering peer1"
+  set -x
+  fabric-ca-client register --caname ca-producer --id.name peer1 --id.secret peer1pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/producer/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
   echo "Registering user"
   set -x
   fabric-ca-client register --caname ca-producer --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/producer/ca-cert.pem"
@@ -70,6 +75,23 @@ function createProducer() {
   cp "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer0.producer.energy.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer0.producer.energy.com/tls/ca.crt"
   cp "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer0.producer.energy.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer0.producer.energy.com/tls/server.crt"
   cp "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer0.producer.energy.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer0.producer.energy.com/tls/server.key"
+
+  echo "Generating the peer1 msp"
+  set -x
+  fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-producer -M "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/producer/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
+  cp "${PWD}/organizations/peerOrganizations/producer.energy.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/msp/config.yaml"
+
+  echo "Generating the peer1-tls certificates, use --csr.hosts to specify Subject Alternative Names"
+  set -x
+  fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-producer -M "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls" --enrollment.profile tls --csr.hosts peer1.producer.energy.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/producer/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
+  # Copy the tls CA cert, server cert, server keystore to well known file names in the peer's tls directory that are referenced by peer startup config
+  cp "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/server.key"
 
   echo "Generating the user msp"
   set -x
