@@ -92,39 +92,39 @@ cd ..
 peer channel update -f ${PWD}/channel-artifacts/config_update_in_envelope.pb -c $CHANNEL_NAME -o localhost:7050  --ordererTLSHostnameOverride orderer.energy.com --tls --cafile $ORDERER_CA
 sleep 1
 
-echo "—---------------Join Producer peer1 to the channel—-------------"
+# echo "—---------------Join Producer peer1 to the channel—-------------"
 
-export CORE_PEER_LOCALMSPID=ProducerMSP 
-export CORE_PEER_ADDRESS=localhost:7297
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/producer.energy.com/users/Admin@producer.energy.com/msp
+# export CORE_PEER_LOCALMSPID=ProducerMSP 
+# export CORE_PEER_ADDRESS=localhost:7297
+# export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/producer.energy.com/peers/peer1.producer.energy.com/tls/ca.crt
+# export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/producer.energy.com/users/Admin@producer.energy.com/msp
 
-echo ${FABRIC_CFG_PATH}
-sleep 2
-peer channel join -b ${PWD}/channel-artifacts/${CHANNEL_NAME}.block
-sleep 3
+# echo ${FABRIC_CFG_PATH}
+# sleep 2
+# peer channel join -b ${PWD}/channel-artifacts/${CHANNEL_NAME}.block
+# sleep 3
 
 echo "-----channel List----"
 peer channel list
 
 echo "—---------------package chaincode—-------------"
 
-peer lifecycle chaincode package basic.tar.gz --path ${PWD}/../Chaincode/chaincode-javascript/ --lang node --label basic_1.0
+peer lifecycle chaincode package energy-contract.tar.gz --path ${PWD}/../Chaincode/Energy-transfer/ --lang node --label energy-contract_1.0
 sleep 1
 
 echo "—---------------install chaincode in Producer peer—-------------"
 
-peer lifecycle chaincode install basic.tar.gz
+peer lifecycle chaincode install energy-contract.tar.gz
 sleep 3
 
 peer lifecycle chaincode queryinstalled
 sleep 1
 
-export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid basic.tar.gz)
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid energy-contract.tar.gz)
 
 echo "—---------------Approve chaincode in producer peer—-------------"
 
-peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name basic --version 1.0  --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name energy-contract --version 1.0  --collections-config ../Chaincode/Energy-transfer/collection-pdc.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 sleep 2
 
 
@@ -167,14 +167,16 @@ sleep 1
 
 echo "—---------------install chaincode in Consumer peer—-------------"
 
-peer lifecycle chaincode install basic.tar.gz
+peer lifecycle chaincode install energy-contract.tar.gz
 sleep 3
 
 peer lifecycle chaincode queryinstalled
+sleep 1
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid energy-contract.tar.gz)
 
 echo "—---------------Approve chaincode in Consumer peer—-------------"
 
-peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name energy-contract --version 1.0  --collections-config ../Chaincode/Energy-transfer/collection-pdc.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 sleep 1
 
 
@@ -217,14 +219,17 @@ sleep 1
 
 echo "—---------------install chaincode in regulator peer—-------------"
 
-peer lifecycle chaincode install basic.tar.gz
+peer lifecycle chaincode install energy-contract.tar.gz
 sleep 3
 
 peer lifecycle chaincode queryinstalled
+sleep 1
+
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid energy-contract.tar.gz)
 
 echo "—---------------Approve chaincode in regulator peer—-------------"
 
-peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name energy-contract --version 1.0  --collections-config ../Chaincode/Energy-transfer/collection-pdc.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 sleep 1
 
 
@@ -267,14 +272,17 @@ sleep 1
 
 echo "—---------------install chaincode in storage peer—-------------"
 
-peer lifecycle chaincode install basic.tar.gz
+peer lifecycle chaincode install energy-contract.tar.gz
 sleep 3
 
 peer lifecycle chaincode queryinstalled
+sleep 1
+
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid energy-contract.tar.gz)
 
 echo "—---------------Approve chaincode in storage peer—-------------"
 
-peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name energy-contract --version 1.0  --collections-config ../Chaincode/Energy-transfer/collection-pdc.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 sleep 1
 
 export CORE_PEER_LOCALMSPID=FinanceMSP 
@@ -319,21 +327,24 @@ peer channel getinfo -c $CHANNEL_NAME
 
 echo "—---------------install chaincode in Finance peer—-------------"
 
-peer lifecycle chaincode install basic.tar.gz
+peer lifecycle chaincode install energy-contract.tar.gz
 sleep 3
 
 peer lifecycle chaincode queryinstalled
+sleep 1
+
+export CC_PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid energy-contract.tar.gz)
 
 echo "—---------------Approve chaincode in Finance peer—-------------"
 
-peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name energy-contract --version 1.0  --collections-config ../Chaincode/Energy-transfer/collection-pdc.json --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile $ORDERER_CA --waitForEvent
 sleep 1
 
 echo "—---------------Commit chaincode in Finance peer—-------------"
 
-peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name basic --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --output json
+peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name energy-contract --version 1.0 --sequence 1 --collections-config ../Chaincode/Energy-transfer/collection-pdc.json --tls --cafile $ORDERER_CA --output json
 
-peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name basic --version 1.0 --sequence 1 --tls --cafile $ORDERER_CA --peerAddresses localhost:7227 --tlsRootCertFiles $PRODUCER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $CONSUMER_PEER_TLSROOTCERT --peerAddresses localhost:7044 --tlsRootCertFiles $REGULATOR_PEER_TLSROOTCERT --peerAddresses localhost:11020 --tlsRootCertFiles $STORAGE_PEER_TLSROOTCERT --peerAddresses localhost:8181 --tlsRootCertFiles $FINANCE_PEER_TLSROOTCERT
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.energy.com --channelID $CHANNEL_NAME --name energy-contract --version 1.0 --sequence 1 --collections-config ../Chaincode/Energy-transfer/collection-pdc.json --tls --cafile $ORDERER_CA --peerAddresses localhost:7227 --tlsRootCertFiles $PRODUCER_PEER_TLSROOTCERT --peerAddresses localhost:9051 --tlsRootCertFiles $CONSUMER_PEER_TLSROOTCERT --peerAddresses localhost:7044 --tlsRootCertFiles $REGULATOR_PEER_TLSROOTCERT --peerAddresses localhost:11020 --tlsRootCertFiles $STORAGE_PEER_TLSROOTCERT --peerAddresses localhost:8181 --tlsRootCertFiles $FINANCE_PEER_TLSROOTCERT
 sleep 1
 
-peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name basic --cafile $ORDERER_CA
+peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name energy-contract --cafile $ORDERER_CA
